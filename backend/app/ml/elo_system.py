@@ -10,7 +10,8 @@ import math
 
 class EloSystem:
     '''
-    Docstring for EloSystem
+    Class EloSystem contains all logic for updating elo scores 
+      of teams and predicting win outcomes in team matchups.
     '''
     def __init__(self, k_factor: int=20, base_elo: int = 1300):
         self.k_factor: int = k_factor
@@ -22,7 +23,7 @@ class EloSystem:
     def get_rating(self, team_id: int):
         return self.team_ratings.get(team_id, self.initial_rating)
     
-    def calculate_win_chance(self, first_elo: int, second_elo: int) -> float:
+    def _calculate_win_chance(self, first_elo: int, second_elo: int) -> float:
         '''
         Just does a sigmoid function to find the win chance 
           for first team
@@ -69,8 +70,9 @@ class EloSystem:
         Returns margin-of-victory multiplier with diminishing returns 
           based on win/lose streaks.
         """
+        SCALE_FACTOR = 1.5
         abs_margin = abs(point_margin)
-        base_multiplier = math.log(abs_margin + 1) * 0.5 # log scaling to limit large values
+        base_multiplier = math.log(abs_margin + 1) * SCALE_FACTOR # log scaling to limit large values
         
         rating_diff = winner_rating - loser_rating
         upset_bonus = None
@@ -90,8 +92,8 @@ class EloSystem:
         
         final_multiplier = base_multiplier * upset_bonus * streak_factor
         
-        # Cap the maximum adjustment to ±10 ELO points from MOV alone
-        return min(final_multiplier, 10.0)
+        # Cap the maximum adjustment to ±15 ELO points from MOV alone
+        return min(final_multiplier, 15.0)
     
 
     def _update_game_history(
@@ -100,7 +102,7 @@ class EloSystem:
         won: bool, 
         margin: int, 
         game_date: datetime
-    ):
+    ) -> None:
         """
         Private method to update and track game outcomes.
         """
@@ -125,7 +127,7 @@ class EloSystem:
         team_id: int, 
         rating: float, 
         game_date: datetime
-    ):
+    ) -> None:
         """
         Private method to update historical ratings.
         """
@@ -162,7 +164,7 @@ class EloSystem:
         rating_away = self.get_rating(team_away_id)
         
         adjusted_home = rating_home + home_advantage
-        expected_home = self.calculate_win_chance(adjusted_home, rating_away)
+        expected_home = self._calculate_win_chance(adjusted_home, rating_away)
         expected_away = 1 - expected_home
 
         home_streak = self.get_recent_streak(team_home_id)
@@ -228,7 +230,7 @@ class EloSystem:
         adjusted_home = rating_home + home_court_advantage
         
         # Calculate probabilities
-        prob_home_wins = self.calculate_win_chance(adjusted_home, rating_away)
+        prob_home_wins = self._calculate_win_chance(adjusted_home, rating_away)
         prob_away_wins = 1 - prob_home_wins
         
         return {
@@ -242,8 +244,13 @@ class EloSystem:
         }
 
 
-    def save_ratings(self, filepath: str = "app/ml/saved_models/team_ratings.json"):
-        """Save current ratings and histories to file"""
+    def _save_ratings(self, filepath: str = "saved_models/team_ratings.json") -> None:
+        """
+        Returns None and saves list of team ratings 
+          to json file for data persistence. 
+          
+          Must run after update_ratings is called.
+        """
         
         Path(filepath).parent.mkdir(parents=True, exist_ok=True)
         
@@ -255,7 +262,6 @@ class EloSystem:
             'game_history': {
                 str(k): v for k, v in self.game_history.items()
             },
-            'k_factor': self.k_factor,
             'initial_rating': self.initial_rating,
             'last_updated': datetime.now().isoformat()
         }
@@ -263,24 +269,68 @@ class EloSystem:
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
         
-        print(f"✅ Saved {len(self.team_ratings)} team ratings to {filepath}")
+        print(f"Saved {len(self.team_ratings)} team ratings to {filepath}")
     
 
-    def load_ratings(self, filepath: str = "app/ml/saved_models/team_ratings.json"):
+    def _load_ratings(self, filepath: str = "saved_models/team_ratings.json"):
         """Load ratings and histories from file"""
         
         with open(filepath, 'r') as f:
             data = json.load(f)
         
-        self.team_ratings = {int(k): v for k, v in data['ratings'].items()}
-        self.rating_history = {
-            int(k): v for k, v in data.get('rating_history', {}).items()
-        }
-        self.game_history = {
-            int(k): v for k, v in data.get('game_history', {}).items()
-        }
+        new_ratings = {}
+        for key, val in data['ratings'].items():
+            json_key = int(key)
+            new_ratings[json_key] = val
+        self.team_ratings = new_ratings # update
+
+        new_rating_history = {}
+        for key, val in data.get('rating_history', {}).items():
+            json_key = int(key)
+            new_rating_history[json_key] = val
+        self.rating_history = new_rating_history
+
+        new_game_history= {}
+        for key, val in data.get('game_history', {}).items():
+            json_key = int(key)
+            new_game_history[json_key] = val
+        self.game_history = new_game_history
+
         self.k_factor = data.get('k_factor', self.k_factor)
         self.initial_rating = data.get('initial_rating', self.initial_rating)
         
-        print(f"✅ Loaded {len(self.team_ratings)} team ratings")
-        print(f"   Last updated: {data.get('last_updated', 'Unknown')}")
+        print(f"Loaded {len(self.team_ratings)} team ratings")
+        print(f"Last updated: {data.get('last_updated', 'Unknown')}")
+
+
+
+elo = EloSystem(k_factor=20)
+
+import os
+print("Current directory:", os.getcwd())
+print("File exists?", os.path.exists("saved_models/team_ratings.json"))
+elo._save_ratings()
+elo._load_ratings()
+
+
+print("TEST 1: 25-point blowout")
+new_lal, new_gsw = elo.update_ratings(
+    team_home_id=1610612747,  # Lakers
+    team_away_id=1610612744,  # Warriors
+    home_score=125,
+    away_score=100,
+    game_date=datetime.now()
+)
+print(new_lal, new_gsw)
+
+print("\nTEST 2: 105-point OBLITERATION")
+elo.team_ratings[1610612747] = 1300  # Reset
+elo.team_ratings[1610612744] = 1300  # Reset
+new_lal, new_gsw = elo.update_ratings(
+    team_home_id=1610612747,
+    team_away_id=1610612744,
+    home_score=125,
+    away_score=20,
+    game_date=datetime.now()
+)
+print(new_lal, new_gsw)
