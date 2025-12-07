@@ -1,3 +1,6 @@
+##### API V1 FOR PREDICTION API ENDPOINTS ####
+
+
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from services.prediction_service import PredictionService, get_prediction_service
@@ -29,7 +32,7 @@ async def predict_winner(
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@router.get('/rating{team_id}')
+@router.get('/rating/{team_id}')
 async def get_team_rating(
     team_id: int,
     prediction_service: PredictionService = Depends(get_prediction_service)
