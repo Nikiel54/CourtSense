@@ -19,11 +19,11 @@ def initialize_elo() -> None:
     print("Processing games now")
     for count, (idx, game) in enumerate(games_df.iterrows(), start=1):
         EloSys.update_ratings(
-            team_home_id=game["team_id_home"],
-            team_away_id=game["team_id_away"],
-            home_score=game['pts_home'],
-            away_score=game['pts_away'],
-            game_date=game['game_date']
+            team_home_id= int(game["team_id_home"]),
+            team_away_id= int(game["team_id_away"]),
+            home_score= int(game['pts_home']),
+            away_score= int(game['pts_away']),
+            game_date= game['game_date']
         )
 
         if (count % 5000 == 0):
