@@ -28,8 +28,8 @@ def initialize_elo() -> None:
 
         if (count % 5000 == 0):
             print(f"Processed {count} games out of {n}")
-    EloSys._save_ratings()
 
+    EloSys._save_ratings()
     return None
 
 
