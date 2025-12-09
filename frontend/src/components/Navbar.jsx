@@ -1,6 +1,27 @@
+import { Link } from "react-router"
 
-export default function Navbar() {
+export default function Navbar({ selectedPage, setSelectedPage }) {
+
     return (
-        <h3 id="navbar">This is where navbar is!</h3>
+        <nav id="navbar">
+            <div className="pg-title">
+                <div className="logo-img"></div>
+                <strong>NBA Match Predictor</strong>
+            </div>
+            <div className="nav-links">
+                <Link to='/'
+                    className={selectedPage === "Dashboard" ? "is-active-page" : "not-active-page"}
+                    onClick={() => setSelectedPage("Dashboard")}>Dashboard
+                </Link>
+                <Link to='/analytics'
+                    className={selectedPage === "Analytics" ? "is-active-page" : "not-active-page"}
+                    onClick={() => setSelectedPage("Analytics")}>Team Analytics
+                </Link>
+                <Link to='/about'
+                    className={selectedPage === "About" ? "is-active-page" : "not-active-page"}
+                    onClick={() => setSelectedPage("About")}>About
+                </Link>
+            </div>
+        </nav>
     )
 }
