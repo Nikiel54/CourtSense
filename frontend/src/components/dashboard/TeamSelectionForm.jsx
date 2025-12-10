@@ -6,7 +6,9 @@ export function TeamSelectionForm({
     awayTeam, 
     setAwayTeam, 
     homeTeamError, 
+    setHomeTeamError,
     awayTeamError,
+    setAwayTeamError,
 }) {
     return (
         <>
@@ -17,11 +19,14 @@ export function TeamSelectionForm({
                         <select
                             name="Home Team"
                             value={homeTeam === "" ? "" : homeTeam.name}
-                            onChange={(e) => (
-                                setHomeTeam(
-                                    team_data.find((team) => team.name === e.target.value)
-                                )
-                            )}>
+                            onChange={(e) => {
+                                if (e.target.value === "") {
+                                    setHomeTeam("");
+                                } else {
+                                    setHomeTeam(team_data.find((team) => team.name === e.target.value));
+                                    setHomeTeamError(false);
+                                }
+                            }}>
                             <option key="0" value="">Select a team</option>
                             {team_data.map((team) => {
                                 return (
@@ -42,11 +47,14 @@ export function TeamSelectionForm({
                         <select
                             name="Away Team"
                             value={awayTeam === "" ? "" : awayTeam.name}
-                            onChange={(e) => (
-                                setAwayTeam(
-                                    team_data.find((team) => team.name === e.target.value)
-                                )
-                            )}>
+                            onChange={(e) => {
+                                if (e.target.value === "") {
+                                    setAwayTeam("");
+                                } else {
+                                    setAwayTeam(team_data.find((team) => team.name === e.target.value));
+                                    setAwayTeamError(false);
+                                }
+                            }}>
                             <option key="0" value="">Select a team</option>
                             {team_data.map((team) => {
                                 return (

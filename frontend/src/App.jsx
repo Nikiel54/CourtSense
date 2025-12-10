@@ -5,7 +5,6 @@ import { AboutPage } from './components/about/AboutPage'
 import Layout from './components/Layout'
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Router } from 'react-router-dom'
-import Navbar from './components/Navbar'
 
 
 function App() {
@@ -43,8 +42,6 @@ function App() {
   { "name": "Utah Jazz", "id": 1610612762 },
   { "name": "Washington Wizards", "id": 1610612764 }
 ]
-
-
 
   return (
     <BrowserRouter>

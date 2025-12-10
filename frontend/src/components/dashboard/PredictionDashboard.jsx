@@ -1,13 +1,27 @@
-import Card from "../Card"
-import { useState } from "react"
+import Card from "../Card";
+import { useState } from "react";
 import { TeamSelectionForm } from "./TeamSelectionForm"
+import { PredictionResults } from "./PredictionResults";
+import { usePredictions } from "../../customhooks/predictionFetching";
 
 export function PredictionDashboard({ team_data }) {
     const [homeTeam, setHomeTeam] = useState(""); // data for filled out fields
     const [awayTeam, setAwayTeam] = useState("");
     const [homeTeamError, setHomeTeamError] = useState(false); // data for incorrectly filled out field states
     const [awayTeamError, setAwayTeamError] = useState(false);
-    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false); // controls if to call api for predictions
+
+    const { prediction, error, loading } = usePredictions(homeTeam.id, awayTeam.id, isSubmitted, () => setIsSubmitted(false)); // track status of data
+
+    
+    function checkForTeamSelections() {
+        homeTeam === "" ? setHomeTeamError(true) : setHomeTeamError(false)
+        awayTeam === "" ? setAwayTeamError(true) : setAwayTeamError(false)
+
+        if (homeTeam !== "" && awayTeam !== "") {
+            setIsSubmitted(true)
+        }
+    }
 
     return (
         <main className="page-body">
@@ -15,7 +29,7 @@ export function PredictionDashboard({ team_data }) {
                 <h1>Select Teams to Predict the Outcome</h1>
                 <em>Choose a home team and an away team to make a prediction</em>
             </div>
-            <Card>
+            <Card display="flex-row">
                 <form action="post" id='dashboard-form'>
                     <TeamSelectionForm
                         team_data={team_data}
@@ -24,13 +38,21 @@ export function PredictionDashboard({ team_data }) {
                         awayTeam={awayTeam}
                         setAwayTeam={setAwayTeam}
                         homeTeamError={homeTeamError}
+                        setHomeTeamError={setHomeTeamError}
                         awayTeamError={awayTeamError}
+                        setAwayTeamError={setAwayTeamError}
                     />
-                    <button type="button" className="prediction-button">
+                    <button type="button" className="prediction-button" onClick={() => checkForTeamSelections()}>
                         Generate Prediction
                     </button>
                 </form>
             </Card>
+            <PredictionResults 
+                prediction={prediction}
+                error={error}
+                loading={loading}
+                isSubmitted={isSubmitted}
+            />
         </main>
     )
 }

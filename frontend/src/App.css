@@ -85,6 +85,8 @@
   font-weight: 300;
 }
 
+/*  GENERIC CARD STYLING */
+
 .card-wrapper {
   display: flex;
   justify-content: center;
@@ -92,7 +94,7 @@
 }
 
 .card {
-  flex: 0 0 35rem;
+  flex: 0 0 55rem;
   display: flex;
   align-items: center;
   background: var(--secondary-bg);              /* panel background */
@@ -103,6 +105,16 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   overflow: visible;
 }
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+/* PREDICTION DASHBOARD FORM */
 
 #dashboard-form {
   flex: 1 1 auto;
@@ -115,7 +127,7 @@
 #dashboard-form label {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 0.5em;
   color:#F1F5F9;
 }
 
@@ -150,6 +162,18 @@
   color: var(--lose-clr);
 }
 
+/* PREDICTED WINNER SECTION */
+
+.prediction-contents {
+  display: flex;
+  flex-direction: column;
+}
+
+.default-prediction-text {
+  font-size: 16px;
+  font-weight: 300;
+}
+
 
 /* FOOTER STYLING */
 
@@ -157,12 +181,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 3em;
   gap: 20px;
   font-size: 12px;
   font-weight: 200;
   color: var(--secondary-text);
   padding: 1em;
   border-top: 2px solid var(--divider-clr);
+  margin-top: 2em;
 }
 
 .vert-divider {
