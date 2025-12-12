@@ -9,14 +9,23 @@ export function PredictionDashboard({ teamData }) {
     const [awayTeam, setAwayTeam] = useState("");
     const [homeTeamError, setHomeTeamError] = useState(false); // data for incorrectly filled out field states
     const [awayTeamError, setAwayTeamError] = useState(false);
+    const [sameTeamSelectionError, setSameTeamSelectionError] = useState(false); // checks to ensure we don't call predictions on same team
     const [isSubmitted, setIsSubmitted] = useState(false); // controls if to call api for predictions
 
     const { prediction, error, loading } = usePredictions(homeTeam.id, awayTeam.id, isSubmitted, () => setIsSubmitted(false)); // track status of data
 
     
     function checkForTeamSelections() {
-        homeTeam === "" ? setHomeTeamError(true) : setHomeTeamError(false)
-        awayTeam === "" ? setAwayTeamError(true) : setAwayTeamError(false)
+        if (homeTeam.name === awayTeam.name) { // if same team selected
+            setSameTeamSelectionError(true);
+            return;
+        }
+        else { // handle missing field errors
+            homeTeam === "" ? setHomeTeamError(true) : setHomeTeamError(false);
+            awayTeam === "" ? setAwayTeamError(true) : setAwayTeamError(false);
+        }
+
+        setSameTeamSelectionError(false);
 
         if (homeTeam !== "" && awayTeam !== "") {
             setIsSubmitted(true)
@@ -41,10 +50,13 @@ export function PredictionDashboard({ teamData }) {
                         setHomeTeamError={setHomeTeamError}
                         awayTeamError={awayTeamError}
                         setAwayTeamError={setAwayTeamError}
+                        sameTeamSelectionError={sameTeamSelectionError}
                     />
-                    <button type="button" className="prediction-button" onClick={() => checkForTeamSelections()}>
-                        Generate Prediction
-                    </button>
+                    <div className="prediction-btn-container">
+                        <button type="button" className="prediction-button" onClick={() => checkForTeamSelections()}>
+                            Generate Prediction
+                        </button>
+                    </div>
                 </form>
             </Card>
             <PredictionResults 

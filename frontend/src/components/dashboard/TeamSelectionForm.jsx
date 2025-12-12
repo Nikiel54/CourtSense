@@ -9,6 +9,7 @@ export function TeamSelectionForm({
     setHomeTeamError,
     awayTeamError,
     setAwayTeamError,
+    sameTeamSelectionError,
 }) {
     return (
         <>
@@ -36,9 +37,12 @@ export function TeamSelectionForm({
                         </select>
                     </button>
                 </label>
-                {homeTeamError &&
-                    <strong className="error-txt">Missing Home Team!</strong>
-                }
+                {homeTeamError ? (
+                    <strong className="error-txt">Missing Home Team!</strong>) 
+                : (sameTeamSelectionError ? ( // we render err text since they selected the same two teams
+                    <strong className="error-txt">Can't Select Same Teams!</strong>
+                ) : (null) // nothing to render
+                )}
             </div>
             <div>
                 <label>
@@ -64,9 +68,12 @@ export function TeamSelectionForm({
                         </select>
                     </button>
                 </label>
-                {awayTeamError &&
-                    <strong className="error-txt">Missing Away Team!</strong>
-                }
+                {awayTeamError ? (
+                    <strong className="error-txt">Missing Away Team!</strong>) 
+                : (sameTeamSelectionError ? ( // we render err text since they selected the same two teams
+                    <strong className="error-txt">Can't Select Same Teams!</strong>
+                ) : (null) // nothing to render
+                )}
             </div>
         </>
                     

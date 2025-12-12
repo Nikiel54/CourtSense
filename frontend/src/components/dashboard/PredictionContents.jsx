@@ -12,14 +12,32 @@ export default function PredictionContents({ prediction, teamData }) {
         .find((team) => 
             prediction['away_team_id'] === team.id
         ).name;
-    const homeTeamWinProb = +(Math.round(prediction['home_win_probability'] * 100, 2)) + '%'; // Extra type safety guards:
-    const awayTeamWinProb = +(Math.round(prediction['away_win_probability'] * 100, 2)) + '%'; // Re-round to make sure it is 2 dp.
+    const homeTeamWinProb = (Math.round(prediction['home_win_probability'] * 100, 2)); // Extra type safety guards:
+    const awayTeamWinProb = (Math.round(prediction['away_win_probability'] * 100, 2)); // Re-round to make sure it is 2 dp.
+
+    let homeProbTxtClass = "";
+    let awayProbTxtClass = "";
+    if (homeTeamWinProb === awayTeamWinProb) {
+        homeProbTxtClass = "win-team-text" // rare case of even matchup
+        awayProbTxtClass = "win-team-text"
+    }
+    else if (homeTeamWinProb > awayTeamWinProb) {
+        homeProbTxtClass = "win-team-text";
+        awayProbTxtClass = "lose-team-text";
+    }
+    else {
+        awayProbTxtClass = "win-team-text";
+        homeProbTxtClass = "lose-team-text";
+    }
     
+
     const homeLogoUrl = `https://cdn.nba.com/logos/nba/${prediction['home_team_id']}/global/L/logo.svg`;
     const awayLogoUrl = `https://cdn.nba.com/logos/nba/${prediction['away_team_id']}/global/L/logo.svg`;
 
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setImagesLoaded(false);
 
         const preloadImages = async () => {
             try {
@@ -38,19 +56,18 @@ export default function PredictionContents({ prediction, teamData }) {
                     loadImg(awayLogoUrl)
                 ])
 
-                setImagesLoaded(true);
+                setTimeout(() => {
+                    setImagesLoaded(true)
+                }, 600);
+
             } catch (err) {
                 console.warn(err.message);
-                setImagesLoaded(true); // since any of the two images can fail, still show whichever did load
+                setImagesLoaded(true) // since any of the two images can fail, still show whichever did load
             }
         }
 
         preloadImages();
-    }, [homeLogoUrl, awayLogoUrl, imagesLoaded])
-
-
-
-
+    }, [homeLogoUrl, awayLogoUrl])
 
     return (
         <>  
@@ -64,22 +81,26 @@ export default function PredictionContents({ prediction, teamData }) {
                     </h2>
                     <div className="prediction-contents">
                         <div className="team-result">
-                            <img className="team-logo" src={homeLogoUrl} alt={`${homeTeamName} NBA logo`} />
-                            <em>{homeTeamWinProb}</em>
-                            <p>Win Probability</p>
-                            <p>{homeTeamName}</p>
+                            <div className="logo-container">
+                                <img className="team-logo" src={homeLogoUrl} alt={`${homeTeamName} NBA logo`} />
+                            </div>
+                            <em className={homeProbTxtClass}>{+homeTeamWinProb + "%"}</em>
+                            <p className="std-prob-title-text">Win Probability</p>
+                            <p className={homeTeamWinProb > 50 ? "" : "lose-team-name"}>{homeTeamName}</p>
                         </div>
                         <p className="versus">VS</p>
                         <div className="team-result">
-                            <img className="team-logo" src={awayLogoUrl} alt={`${awayTeamName} NBA logo`} />
-                            <em>{awayTeamWinProb}</em>
-                            <p>Win Probability</p>
-                            <p>{awayTeamName}</p>
+                            <div className="logo-container">
+                                <img className="team-logo" src={awayLogoUrl} alt={`${awayTeamName} NBA logo`} />
+                            </div>
+                            <em className={awayProbTxtClass}>{+awayTeamWinProb + "%"}</em>
+                            <p className="std-prob-title-text">Win Probability</p>
+                            <p className={awayTeamWinProb > 50 ? "" : "lose-team-name"}>{awayTeamName}</p>
                         </div>
                     </div>
                 </>
                 ) : (
-                    <h2>Loading...</h2>
+                    <h2 className="prediction-loading-text">Loading...</h2>
                 )
             }
         </>
