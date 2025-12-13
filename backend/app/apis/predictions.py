@@ -32,6 +32,15 @@ async def predict_winner(
         raise HTTPException(status_code=500, detail=str(e))
     
 
+@router.get('/teamnames')
+async def get_team_names(
+    prediction_service: PredictionService = Depends(get_prediction_service)
+):
+    return {
+        'team_names': prediction_service.get_team_names(),
+    }
+    
+
 @router.get('/rating/{team_id}')
 async def get_team_rating(
     team_id: int,

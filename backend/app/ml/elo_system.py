@@ -19,13 +19,17 @@ class EloSystem:
         self.team_ratings: dict[int, int] = {} # team id: team elo
         self.rating_history: dict[int, list] = {}  # team id: [team ratings]
         self.game_history: dict[int, list] = {} # team id: [team w/l results]
+        self.team_names: list[dict[str, int]] = [] # array of: {official team names: team ids}
 
-        # Set default save path relative to THIS FILE's location
+        # Set default save path
         self_dir = Path(__file__).parent  # app/ml/
         self.default_save_path = self_dir / "saved_models" / "team_ratings.json"
 
     def get_rating(self, team_id: int):
         return self.team_ratings.get(team_id, self.initial_rating)
+    
+    def get_team_names(self):
+        return self.team_names
     
     def _calculate_win_chance(self, first_elo: int, second_elo: int) -> float:
         '''
@@ -259,6 +263,7 @@ class EloSystem:
         
         data = {
             'ratings': {str(k): v for k, v in self.team_ratings.items()},
+            'team_names': self.team_names,
             'rating_history': {
                 str(k): v for k, v in self.rating_history.items()
             },
@@ -286,6 +291,8 @@ class EloSystem:
 
         with open(filepath, 'r') as f:
             data = json.load(f)
+
+        self.team_names = data['team_names']
         
         new_ratings = {}
         for key, val in data['ratings'].items():

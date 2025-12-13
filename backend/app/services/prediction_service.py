@@ -29,6 +29,14 @@ class PredictionService:
             ## Optional: Include ratings later
         }
 
+    def get_team_names(self) -> list[Dict]:
+        '''
+        Returns an array of dict types with team names (str)
+          as keys and team ids (int) as values.
+        '''
+        return self.Elo.get_team_names()
+
+
     def get_team_rating(self, team_id: int) -> float:
         """
         Returns a team's current ELO rating.

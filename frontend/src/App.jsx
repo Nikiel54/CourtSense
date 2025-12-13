@@ -3,45 +3,35 @@ import { TeamAnalytics } from './components/analytics/TeamAnalytics'
 import { PredictionDashboard } from './components/dashboard/PredictionDashboard'
 import { AboutPage } from './components/about/AboutPage'
 import Layout from './components/Layout'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Router } from 'react-router-dom'
 
 
 function App() {
-  const [selectedTeamAnalytics, setSelectedTeamAnalytics] = useState("Celtics")
+  const [selectedTeamAnalytics, setSelectedTeamAnalytics] = useState("Celtics");
+  const [teamData, setTeamData] = useState([]);
+  
+  useEffect(() => {
+    const getTeamNames = async () => {
+      const teamNamesUrl = 'http://127.0.0.1:8000/apis/teamnames';
 
-  const teamData = [
-  { "name": "Atlanta Hawks", "id": 1610612737 },
-  { "name": "Boston Celtics", "id": 1610612738 },
-  { "name": "Brooklyn Nets", "id": 1610612751 },
-  { "name": "Charlotte Hornets", "id": 1610612766 },
-  { "name": "Chicago Bulls", "id": 1610612741 },
-  { "name": "Cleveland Cavaliers", "id": 1610612739 },
-  { "name": "Dallas Mavericks", "id": 1610612742 },
-  { "name": "Denver Nuggets", "id": 1610612743 },
-  { "name": "Detroit Pistons", "id": 1610612765 },
-  { "name": "Golden State Warriors", "id": 1610612744 },
-  { "name": "Houston Rockets", "id": 1610612745 },
-  { "name": "Indiana Pacers", "id": 1610612754 },
-  { "name": "Los Angeles Clippers", "id": 1610612746 },
-  { "name": "Los Angeles Lakers", "id": 1610612747 },
-  { "name": "Memphis Grizzlies", "id": 1610612763 },
-  { "name": "Miami Heat", "id": 1610612748 },
-  { "name": "Milwaukee Bucks", "id": 1610612749 },
-  { "name": "Minnesota Timberwolves", "id": 1610612750 },
-  { "name": "New Orleans Pelicans", "id": 1610612740 },
-  { "name": "New York Knicks", "id": 1610612752 },
-  { "name": "Oklahoma City Thunder", "id": 1610612760 },
-  { "name": "Orlando Magic", "id": 1610612753 },
-  { "name": "Philadelphia 76ers", "id": 1610612755 },
-  { "name": "Phoenix Suns", "id": 1610612756 },
-  { "name": "Portland Trail Blazers", "id": 1610612757 },
-  { "name": "Sacramento Kings", "id": 1610612758 },
-  { "name": "San Antonio Spurs", "id": 1610612759 },
-  { "name": "Toronto Raptors", "id": 1610612761 },
-  { "name": "Utah Jazz", "id": 1610612762 },
-  { "name": "Washington Wizards", "id": 1610612764 }
-]
+      try {
+        const response = await fetch(teamNamesUrl);
+
+        if (!response.ok) {
+          throw new Error(`Error in fetching team names: ${response.status}`)
+        }
+
+        const data = await response.json();
+        setTeamData(data['team_names']);
+      } catch (err) {
+        console.warn(err.message);
+      }
+    }
+    
+    getTeamNames();
+  }, [])
+
 
   return (
     <BrowserRouter>

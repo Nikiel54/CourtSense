@@ -172,6 +172,11 @@
   font-weight: 600;
   font-size: 1rem;
   padding: 1.5em;
+  transition: transform 0.3s ease-in-out;
+}
+
+.prediction-button:hover {
+  transform: scale(1.05);
 }
 
 .error-txt {
@@ -198,6 +203,7 @@
   align-items: center;
   gap: 1em;
   font-size: 1.3rem;
+  color: var(--win-clr);
 }
 
 .trophy-svg {
