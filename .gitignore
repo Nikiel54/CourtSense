@@ -1,3 +1,17 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
 # Logs
 logs
 *.log
@@ -7,6 +21,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# react env
 node_modules
 dist
 dist-ssr
