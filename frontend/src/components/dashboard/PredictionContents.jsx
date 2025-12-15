@@ -30,9 +30,9 @@ export default function PredictionContents({ prediction, teamData }) {
         homeProbTxtClass = "lose-team-text";
     }
     
-
-    const homeLogoUrl = `https://cdn.nba.com/logos/nba/${prediction['home_team_id']}/global/L/logo.svg`;
-    const awayLogoUrl = `https://cdn.nba.com/logos/nba/${prediction['away_team_id']}/global/L/logo.svg`;
+    const LogoBaseUrl = import.meta.env.VITE_CDN_LOGOS;
+    const homeLogoUrl = `${LogoBaseUrl}${prediction['home_team_id']}/global/L/logo.svg`;
+    const awayLogoUrl = `${LogoBaseUrl}${prediction['away_team_id']}/global/L/logo.svg`;
 
 
     useEffect(() => {

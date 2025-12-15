@@ -7,7 +7,8 @@ export const usePredictions = ( homeId, awayId, isSubmitted, onFetchComplete ) =
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    const predictUrl = 'http://127.0.0.1:8000/apis/prediction' // use .env here
+    const serverBaseUrl = import.meta.env.VITE_SERVER_APIS_BASE_URL;
+    const predictUrl = `${serverBaseUrl}prediction`;
 
 
     useEffect(() => {
@@ -48,7 +49,7 @@ export const usePredictions = ( homeId, awayId, isSubmitted, onFetchComplete ) =
             return;
         }
 
-    }, [isSubmitted, awayId, homeId, onFetchComplete])
+    }, [isSubmitted, awayId, homeId, onFetchComplete, predictUrl])
 
     return { prediction, error, loading };
 }
