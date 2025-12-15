@@ -1,8 +1,8 @@
 
 
-export function TeamAnalytics({ selectedTeam }) {
+export function TeamAnalytics() {
 
     return (
-        <h1 className="page-body">hello this team is {selectedTeam} </h1>
+        <h1 className="page-body">hello this is analytics!</h1>
     )
 }

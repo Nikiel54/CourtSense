@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import basketballIcon from "../assets/basketball.png";
+import basketballIcon from "../../assets/basketball.png";
 
 export default function Navbar({ selectedPage, setSelectedPage }) {
 

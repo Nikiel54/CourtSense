@@ -1,4 +1,4 @@
-import Card from "../Card";
+import Card from "../layout/Card";
 import { useState } from "react";
 import { TeamSelectionForm } from "./TeamSelectionForm"
 import { PredictionResults } from "./PredictionResults";

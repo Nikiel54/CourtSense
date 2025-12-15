@@ -1,4 +1,4 @@
-import Card from "../Card";
+import Card from "../layout/Card";
 import PredictionContents from "./PredictionContents";
 
 

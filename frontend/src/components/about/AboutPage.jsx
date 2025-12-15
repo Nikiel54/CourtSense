@@ -3,6 +3,13 @@
 export function AboutPage() {
 
     return (
-        <h1 className="page-body">Hello this is about page</h1>
+        <>
+            <section id="about-desc-section">
+                
+            </section>
+            <section>
+
+            </section>
+        </>
     )
 }
