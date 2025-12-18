@@ -20,6 +20,7 @@ class EloSystem:
         self.rating_history: dict[int, list] = {}  # team id: [team ratings]
         self.game_history: dict[int, list] = {} # team id: [team w/l results]
         self.team_names: list[dict[str, int]] = [] # array of: {official team names: team ids}
+        self.last_game_date = None
 
         # Set default save path
         self_dir = Path(__file__).parent  # app/ml/
@@ -30,6 +31,16 @@ class EloSystem:
     
     def get_team_names(self):
         return self.team_names
+    
+    def get_last_game_date(self):
+        return self.last_game_date
+    
+    def _update_last_game_date(self, new_game_date: datetime):
+        if (self.last_game_date == None):
+            self.last_game_date = new_game_date
+        elif (new_game_date > self.last_game_date):
+            self.last_game_date = new_game_date
+
     
     def _calculate_win_chance(self, first_elo: int, second_elo: int) -> float:
         '''
@@ -210,6 +221,7 @@ class EloSystem:
         
         # Update rating history
         if game_date:
+            self._update_last_game_date(game_date)
             self._update_rating_history(team_home_id, new_rating_home, game_date)
             self._update_rating_history(team_away_id, new_rating_away, game_date)
         
@@ -264,6 +276,7 @@ class EloSystem:
         data = {
             'ratings': {str(k): v for k, v in self.team_ratings.items()},
             'team_names': self.team_names,
+            'last_game_date': self.last_game_date.isoformat(),
             'rating_history': {
                 str(k): v for k, v in self.rating_history.items()
             },
@@ -293,6 +306,7 @@ class EloSystem:
             data = json.load(f)
 
         self.team_names = data['team_names']
+        self.last_game_date = datetime.fromisoformat(data['last_game_date'])
         
         new_ratings = {}
         for key, val in data['ratings'].items():
