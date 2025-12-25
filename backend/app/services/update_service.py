@@ -13,6 +13,7 @@ class UpdateService:
         self.Elo._load_ratings()
     
     def update_team_ratings(self, new_games: pd.DataFrame) -> bool:
+        print("Starting team updates")
         new_games_processed = self.Processor.clean_data(new_games)
 
         n = len(new_games_processed)
@@ -25,10 +26,10 @@ class UpdateService:
             print("Processing games now")
             for count, (_, game) in enumerate(new_games_processed.iterrows(), start=1):
                 self.Elo.update_ratings(
-                    team_home_id= int(game["team_id_home"]),
-                    team_away_id= int(game["team_id_away"]),
-                    home_score= int(game['pts_home']),
-                    away_score= int(game['pts_away']),
+                    team_home_id= int(game["home_team_id"]),
+                    team_away_id= int(game["away_team_id"]),
+                    home_score= int(game['home_pts']),
+                    away_score= int(game['away_pts']),
                     game_date= game['game_date']
                 )
 
@@ -49,8 +50,3 @@ def get_update_service() -> UpdateService:
     if (_singleton_update_service == None):
         _singleton_update_service = UpdateService() # invoke update service class
     return _singleton_update_service
-
-
-## Need to fix:
-# Location of database
-# Add in methods to add team names to array of teams

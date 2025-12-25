@@ -16,8 +16,10 @@ class NBADataProcessor:
         df['game_date'] = pd.to_datetime(df['game_date'])
 
         # Target columns
-        df['home_win'] = df['wl_home'].apply(lambda x: 1 if x == 'W' else 0)
-        df['away_win'] = df['wl_away'].apply(lambda x: 1 if x == 'W' else 0)
+        if ('home_win') not in df.columns:
+            df['home_win'] = df['wl_home'].apply(lambda x: 1 if x == 'W' else 0)
+        if ('away_win') not in df.columns:
+            df['away_win'] = df['wl_away'].apply(lambda x: 1 if x == 'W' else 0)
 
         df_numeric = df.select_dtypes(include=['number'])
         df[df_numeric.columns] = self.imputer.fit_transform(df_numeric)

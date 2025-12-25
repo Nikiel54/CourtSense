@@ -7,10 +7,8 @@
 
 from nba_api.stats.endpoints import leaguegamelog
 import pandas as pd
-from pathlib import Path
 from datetime import datetime, timedelta
-from fastapi import Depends
-from services.update_service import UpdateService, get_update_service
+from services.update_service import UpdateService
 
 
 class NBADataPipeline:
@@ -18,13 +16,14 @@ class NBADataPipeline:
     NBADataPipeline class handles async methods for 
       updating database daily with new NBA game data.
     '''
-    def __init__(self):
+    def __init__(self, update_service):
         self.base_dir = Path(__file__).parent.parent
         self.ratings_path = self.base_dir / "ml" / "saved_models" / "team_ratings.json"
         # Ensure directory exists
         self.ratings_path.parent.mkdir(parents=True, exist_ok=True)
 
         self._mode = "catchup" # state for either batch process or daily
+        self._update_service: UpdateService = update_service
     
     def toggle_mode_daily(self):
         self._mode = "daily"
@@ -136,6 +135,7 @@ class NBADataPipeline:
                 
                 # Derived fields
                 'home_win': 1 if home_team['WL'] == 'W' else 0,
+                'away_win': 1 if away_team['WL'] == 'W' else 0,
                 'point_differential': home_team['PTS'] - away_team['PTS'],
             }
             
@@ -211,10 +211,9 @@ class NBADataPipeline:
     def fetch_and_update_games(
         self,
         last_date_iso: str,
-        update_service: UpdateService = Depends(get_update_service)
     ) -> None:
         new_games = self.fetch_games_since(last_date_iso)
-        update_result = update_service.update_team_ratings(new_games)
+        update_result = self._update_service.update_team_ratings(new_games)
 
         if (update_result):
             print(f"Updated ${len(new_games)} games successfully!")
@@ -223,7 +222,20 @@ class NBADataPipeline:
 
 
 
-offline = NBADataPipeline()
-df = offline.fetch_games_since("2023-04-09T00:00:00")
-df.head()
-df.info()
+if __name__ == "__main__":
+    import sys
+    from pathlib import Path
+    
+    # Add parent directory to path
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    
+    from services.update_service import get_update_service
+    
+    # Get update service instance
+    update_service = get_update_service()
+
+    pipeline = NBADataPipeline(update_service)
+    result = pipeline.fetch_and_update_games("2023-04-09T00:00:00")
+    
+
+
