@@ -1,16 +1,64 @@
-# React + Vite
+# NBA Match Predictor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack machine learning application that predicts NBA game outcomes using an Elo rating system. The application features real-time predictions, automated daily updates, and comprehensive team analytics.
 
-Currently, two official plugins are available:
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)
+![React](https://img.shields.io/badge/React-18.0-61DAFB)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🎯 Features
 
-## React Compiler
+- **Real-time NBA Game Predictions**: Predict outcomes of upcoming matchups using Elo ratings
+- **Dynamic Elo Rating System**: Continuously updated ratings based on game results and performance
+- **Automated Data Pipeline**: Daily background jobs fetch new games and update ratings automatically
+- **Team Analytics Dashboard**: View historical performance, win rates, and rating trends
+- **RESTful API**: Well-documented API endpoints for predictions and team statistics
+- **Interactive UI**: Clean, responsive interface built with React
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🏗️ Architecture
 
-## Expanding the ESLint configuration
+```
+┌─────────────┐         ┌──────────────┐         ┌─────────────┐
+│   Frontend  │ ──────> │  FastAPI API │ ──────> │ Elo System  │
+│   (React)   │ <────── │   (Backend)  │ <────── │  (ML Core)  │
+└─────────────┘         └──────────────┘         └─────────────┘
+                               │                         │
+                               │                         │
+                        ┌──────▼────────┐         ┌──────▼──────┐
+                        │  Background   │ ──────> │  NBA API    │
+                        │   Pipeline    │         │  (External) │
+                        └───────────────┘         └─────────────┘
+                               │
+                               ▼
+                        ┌──────────────┐
+                        │  JSON Store  │
+                        │ (Ratings DB) │
+                        └──────────────┘
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Tech Stack
+
+### Backend
+- **FastAPI**: Modern, fast web framework for building APIs
+- **Python 3.11**: Core programming language
+- **NBA API**: Official NBA statistics and game data
+- **Pandas**: Data processing and analysis
+- **Uvicorn**: ASGI server for production deployment
+
+### Frontend
+- **React**: UI library for building interactive interfaces
+- **Axios**: HTTP client for API communication
+- **Tailwind CSS**: Utility-first CSS framework (if applicable)
+
+### DevOps & Automation
+- **GitHub Actions**: Automated daily data updates
+- **Render/Railway**: Backend API hosting
+- **Vercel/Netlify**: Frontend hosting
+
+### Data & ML
+- **Elo Rating System**: Custom implementation for team strength calculation
+- **JSON Storage**: Lightweight data persistence for ratings and game history
+---
+
+**⭐ If you found this project useful, please consider giving it a star!**
