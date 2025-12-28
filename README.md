@@ -48,13 +48,11 @@ A full-stack machine learning application that predicts NBA game outcomes using 
 
 ### Frontend
 - **React**: UI library for building interactive interfaces
-- **Axios**: HTTP client for API communication
-- **Tailwind CSS**: Utility-first CSS framework (if applicable)
 
 ### DevOps & Automation
 - **GitHub Actions**: Automated daily data updates
-- **Render/Railway**: Backend API hosting
-- **Vercel/Netlify**: Frontend hosting
+- **Render**: Backend API hosting
+- **Netlify**: Frontend hosting
 
 ### Data & ML
 - **Elo Rating System**: Custom implementation for team strength calculation
