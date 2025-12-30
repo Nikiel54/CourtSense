@@ -1,4 +1,4 @@
-# NBA Match Predictor
+# CourtSense
 
 A full-stack machine learning application that predicts NBA game outcomes using an Elo rating system. The application features real-time predictions, automated daily updates, and comprehensive team analytics.
 
