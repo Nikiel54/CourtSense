@@ -2,6 +2,8 @@
 
 from fastapi import FastAPI
 from pydantic import BaseModel
+from dotenv import load_dotenv
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from app.apis import predictions
 
@@ -14,11 +16,13 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+load_dotenv()
+
 ## Connection to front end
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # React dev server
+        os.getenv('CORS_ORIGINS'),  # React dev server
     ],
     allow_credentials=True,
     allow_methods=["*"],
