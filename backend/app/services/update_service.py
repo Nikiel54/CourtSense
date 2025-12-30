@@ -13,7 +13,6 @@ class UpdateService:
         self.Elo._load_ratings()
     
     def update_team_ratings(self, new_games: pd.DataFrame) -> bool:
-        print("Starting team updates")
         new_games_processed = self.Processor.clean_data(new_games)
 
         n = len(new_games_processed)
@@ -23,7 +22,6 @@ class UpdateService:
             return True
 
         try:
-            print("Processing games now")
             for count, (_, game) in enumerate(new_games_processed.iterrows(), start=1):
                 self.Elo.update_ratings(
                     team_home_id= int(game["home_team_id"]),
@@ -33,8 +31,6 @@ class UpdateService:
                     game_date= game['game_date']
                 )
 
-                if (count % 50 == 0):
-                    print(f"Processed {count} games out of {n}")
 
             self.Elo._save_ratings()
             return True

@@ -290,7 +290,7 @@ class EloSystem:
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
         
-        print(f"Saved {len(self.team_ratings)} team ratings to {filepath}")
+        return None
     
 
     def _load_ratings(self):
@@ -329,5 +329,4 @@ class EloSystem:
         self.k_factor = data.get('k_factor', self.k_factor)
         self.initial_rating = data.get('initial_rating', self.initial_rating)
         
-        print(f"Loaded {len(self.team_ratings)} team ratings")
-        print(f"Last updated: {data.get('last_updated', 'Unknown')}")
+        return None

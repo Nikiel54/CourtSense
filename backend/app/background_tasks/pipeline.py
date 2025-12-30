@@ -1,6 +1,6 @@
 ##############################################
 # This controller will be run as a background task 
-# which will control the modes: "backfill" or "daily", 
+# which will control the modes: "catchup" or "daily", 
 # which determine how much games to process to keep the 
 # elo system up to date indefinitely.
 ##############################################
@@ -9,6 +9,7 @@ from nba_api.stats.endpoints import leaguegamelog
 import pandas as pd
 from datetime import datetime, timedelta
 from services.update_service import UpdateService
+from ml.elo_system import EloSystem
 
 
 class NBADataPipeline:
@@ -17,16 +18,14 @@ class NBADataPipeline:
       updating database daily with new NBA game data.
     '''
     def __init__(self, update_service):
-        self.base_dir = Path(__file__).parent.parent
-        self.ratings_path = self.base_dir / "ml" / "saved_models" / "team_ratings.json"
-        # Ensure directory exists
-        self.ratings_path.parent.mkdir(parents=True, exist_ok=True)
-
-        self._mode = "catchup" # state for either batch process or daily
+        self.mode = "catchup" # state for either batch process or daily
         self._update_service: UpdateService = update_service
+        self._elo_sys: EloSystem = EloSystem()
+        self._elo_sys._load_ratings()
+        self.last_update: str = datetime.isoformat(self._elo_sys.last_game_date) # last updated time from db
     
     def toggle_mode_daily(self):
-        self._mode = "daily"
+        self.mode = "daily"
 
     def toggle_mode_catchup(self):
         self._mode = "catchup"
@@ -67,13 +66,10 @@ class NBADataPipeline:
             game_data: pd.DataFrame = game_log_df[game_log_df['GAME_ID'] == game_id]
             
             if len(game_data) != 2:
-                print(f"Warning: Game {game_id} has {len(game_data)} teams (expected 2)")
                 continue
             
             teams = game_data.to_dict('records')
             
-            # Determine home/away from MATCHUP column
-            # Home team doesn't have '@', away team has '@'
             if '@' in teams[0]['MATCHUP']:
                 away_team, home_team = teams[0], teams[1]
             else:
@@ -149,7 +145,7 @@ class NBADataPipeline:
             season_type: str = "Regular Season",
         ) -> pd.DataFrame:
 
-        mode = self._mode
+        mode = self.mode
         last_dt = datetime.fromisoformat(last_date_iso)
         dt_now = datetime.now()
 
@@ -165,15 +161,11 @@ class NBADataPipeline:
             date_from = (last_dt + timedelta(days=1)).strftime('%m/%d/%Y')
             date_to = today.strftime('%m/%d/%Y')
             seasons = self._get_unique_seasons(last_dt, today)
-        else:
-            print(f"Error in mode chosen: ${mode}")
 
         all_games = []
     
         for season in seasons:
             try:
-                print(f"Fetching games for season {season}...")
-                
                 log = leaguegamelog.LeagueGameLog(
                     season=season,
                     season_type_all_star=season_type,
@@ -187,7 +179,6 @@ class NBADataPipeline:
                 df: pd.DataFrame = log.get_data_frames()[0]
                 
                 if not df.empty:
-                    print(f"  Found {len(df)} team-game records")
                     all_games.append(df)
                 
             except Exception as e:
@@ -195,7 +186,6 @@ class NBADataPipeline:
                 continue
 
         if not all_games:
-            print("No games found")
             return pd.DataFrame()
         
         # Combine all seasons & set datetime
@@ -210,15 +200,12 @@ class NBADataPipeline:
 
     def fetch_and_update_games(
         self,
-        last_date_iso: str,
     ) -> None:
+        last_date_iso: str = self.last_update
         new_games = self.fetch_games_since(last_date_iso)
-        update_result = self._update_service.update_team_ratings(new_games)
+        self._update_service.update_team_ratings(new_games)
 
-        if (update_result):
-            print(f"Updated ${len(new_games)} games successfully!")
-        else:
-            print("Error: Failed to update games")
+
 
 
 
@@ -235,7 +222,7 @@ if __name__ == "__main__":
     update_service = get_update_service()
 
     pipeline = NBADataPipeline(update_service)
-    result = pipeline.fetch_and_update_games("2023-04-09T00:00:00")
+    result = pipeline.fetch_and_update_games()
     
 
 
