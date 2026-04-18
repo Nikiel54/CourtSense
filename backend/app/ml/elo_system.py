@@ -13,8 +13,9 @@ class EloSystem:
     Class EloSystem contains all logic for updating elo scores 
       of teams and predicting win outcomes in team matchups.
     '''
-    def __init__(self, k_factor: int=20, base_elo: int = 1300):
+    def __init__(self, k_factor: int = 20, hca: float = 40.0, base_elo: int = 1300):
         self.k_factor: int = k_factor
+        self.hca: float = hca
         self.initial_rating = base_elo
         self.team_ratings: dict[int, int] = {} # team id: team elo
         self.rating_history: dict[int, list] = {}  # team id: [team ratings]
@@ -171,24 +172,27 @@ class EloSystem:
         team_away_id: int,
         home_score: int,
         away_score: int,
-        home_advantage: int=100,
+        home_advantage: float = None,
         game_date: datetime=None
     ) -> Tuple[float, float]:
         '''
-        Returns a tuple containing new home team rating 
+        Returns a tuple containing new home team rating
           and new away team rating after games were played.
         '''
+        if home_advantage is None:
+            home_advantage = self.hca
+
         # Get current ratings and calculate updated ratings
         rating_home = self.get_rating(team_home_id)
         rating_away = self.get_rating(team_away_id)
-        
+
         adjusted_home = rating_home + home_advantage
         expected_home = self._calculate_win_chance(adjusted_home, rating_away)
         expected_away = 1 - expected_home
 
         home_streak = self.get_recent_streak(team_home_id)
         away_streak = self.get_recent_streak(team_away_id)
-        
+
         actual_home = 1 if home_score > away_score else 0
         actual_away = 1 - actual_home
 
@@ -197,21 +201,28 @@ class EloSystem:
         base_change_home = self.k_factor * (actual_home - expected_home)
         base_change_away = self.k_factor * (actual_away - expected_away)
 
-        mov_change_home = None
-        mov_change_away = None
-        if (actual_home):
-            mov_multiplier = self._calculate_mov_multiplier(home_pts_margin, rating_home, rating_away, home_streak)
-            mov_change_home = mov_multiplier
-            mov_change_away = -mov_multiplier
+        # Compute MOV magnitude from the winner's perspective, then apply signs.
+        # This makes the zero-sum invariant structural: mov_change_home = -mov_change_away by construction.
+        if actual_home:
+            mov_magnitude = self._calculate_mov_multiplier(
+                home_pts_margin, rating_home, rating_away, home_streak
+            )
+            mov_change_home = mov_magnitude
+            mov_change_away = -mov_magnitude
         else:
-            mov_multiplier = self._calculate_mov_multiplier(home_pts_margin, rating_away, rating_home, away_streak)
-            mov_change_home = mov_multiplier
-            mov_change_away = -mov_multiplier
+            mov_magnitude = self._calculate_mov_multiplier(
+                abs(home_pts_margin), rating_away, rating_home, away_streak
+            )
+            mov_change_home = -mov_magnitude
+            mov_change_away = mov_magnitude
+
+        # Sanity invariant: Elo updates are zero-sum.
+        assert abs((base_change_home + mov_change_home) + (base_change_away + mov_change_away)) < 1e-9, \
+            f"Non-zero-sum Elo update for game (home={team_home_id}, away={team_away_id})"
 
         new_rating_home = rating_home + base_change_home + mov_change_home
         new_rating_away = rating_away + base_change_away + mov_change_away
-        
-        # Store updated ratings
+
         self.team_ratings[team_home_id] = new_rating_home
         self.team_ratings[team_away_id] = new_rating_away
 
@@ -232,20 +243,23 @@ class EloSystem:
         self, 
         team_home_id: int, 
         team_away_id: int,
-        home_court_advantage: int = 100
+        home_court_advantage: float = None
     ) -> Dict[str, float]:
         """
         Predict game outcome
-        
+
         Returns:
             Dict with prediction probabilities
         """
+        if home_court_advantage is None:
+            home_court_advantage = self.hca
+
         rating_home = self.get_rating(team_home_id)
         rating_away = self.get_rating(team_away_id)
 
         home_streak = self.get_recent_streak(team_home_id)
         away_streak = self.get_recent_streak(team_away_id)
-        
+
         # Apply home court advantage
         adjusted_home = rating_home + home_court_advantage
         

@@ -1,6 +1,6 @@
 # CourtSense
 
-A full-stack machine learning application that predicts NBA game outcomes using an Elo rating system. The application features real-time predictions, automated daily updates, and comprehensive team analytics.
+A full-stack NBA game prediction service using a custom Elo rating system with margin-of-victory and streak adjustments. Reaches 62.9% accuracy and 0.230 Brier score on a held-out 2022–23 season (1,230 games), beating always-home and coin-flip baselines across accuracy, Brier, and log-loss. See BENCHMARKS.md for methodology, HCA calibration experiments, and train/val/test splits.
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)
@@ -19,10 +19,10 @@ A full-stack machine learning application that predicts NBA game outcomes using 
 ## 🏗️ Architecture
 
 ```
-┌─────────────┐         ┌──────────────┐         ┌─────────────┐
-│   Frontend  │ ──────> │  FastAPI API │ ──────> │ Elo System  │
-│   (React)   │ <────── │   (Backend)  │ <────── │  (ML Core)  │
-└─────────────┘         └──────────────┘         └─────────────┘
+┌─────────────┐         ┌──────────────┐         ┌───────────────┐
+│   Frontend  │ ──────> │  FastAPI API │ ──────> │ Elo System    │
+│   (React)   │ <────── │   (Backend)  │ <────── │  (Rating Core)│
+└─────────────┘         └──────────────┘         └───────────────┘
                                │                         │
                                │                         │
                         ┌──────▼────────┐         ┌──────▼──────┐
@@ -52,8 +52,8 @@ A full-stack machine learning application that predicts NBA game outcomes using 
 - **Render**: Backend API hosting
 - **Netlify**: Frontend hosting
 
-### Data & ML
-- **Elo Rating System**: Custom implementation for team strength calculation
+### Rating System & Storage
+- **Elo Rating System**:  Custom implementation with MOV and streak adjustments; HCA calibrated via held-out validation (see BENCHMARKS.md)
 - **JSON Storage**: Lightweight data persistence for ratings and game history
 ---
 

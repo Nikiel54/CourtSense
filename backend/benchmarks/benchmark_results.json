@@ -1,0 +1,21 @@
+{
+  "held_out_season": "2022-2023",
+  "n_train": 47601,
+  "n_test": 1230,
+  "home_win_rate_in_test": 0.5805,
+  "courtsense": {
+    "accuracy": 0.6171,
+    "brier_score": 0.2357,
+    "log_loss": 0.6724
+  },
+  "baseline_home_always": {
+    "accuracy": 0.5805,
+    "brier_score": 0.2435,
+    "log_loss": 0.6801
+  },
+  "baseline_coin_flip": {
+    "accuracy": 0.5,
+    "brier_score": 0.25,
+    "log_loss": 0.6931
+  }
+}
